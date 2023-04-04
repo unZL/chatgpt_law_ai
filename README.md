@@ -3,7 +3,7 @@ chatgpt_law_ai是一个通过调用openai的api来进行法律相关文本处理
 
 # 安装
 1. 下载
-2. 在解压目录运行 `pip install -r requirements.txt` 安装依赖包
+2. 在解压目录运行 pip install -r requirements.txt安装依赖包
 3. 运行main
 
 # 使用说明
@@ -36,3 +36,9 @@ http://127.0.0.1:8080/post/r/
 ```json
 {"require_name": "extract","law_text": "你需要处理的法律文本"}
 ```
+
+# 注意事项
+
+如果不需要 socks5 代理，请注释main.py中的
+
+`socks5_config = socks5_utils.Socks5_config(config_file_path)`
