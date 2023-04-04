@@ -3,7 +3,7 @@ chatgpt_law_ai是一个通过调用openai的api来进行法律相关文本处理
 
 # 安装
 1. 下载
-2. 在解压目录运行 pip install -r requirements.txt安装依赖包
+2. 在解压目录运行 `pip install -r requirements.txt` 安装依赖包
 3. 运行main
 
 # 使用说明
