@@ -2,16 +2,18 @@ from fastapi import FastAPI, Depends
 from uvicorn import Config, Server
 import ai_config
 import openai
-import socks5_utils
+# import socks5_utils
 import logging
 from pydantic import BaseModel
 import datetime
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
+import os
 # import sys
 # 设置日志级别为 DEBUG（调试模式）
 logging.basicConfig(level=logging.DEBUG)
 
 config_file_path = "config.ini"
-
 
 # 创建一个 FastAPI 对象
 app = FastAPI()
@@ -26,11 +28,11 @@ async def before_server_start():
     print("服务器正在启动中……")
 
     # 下面的函数将开启 socks5 代理 如不需要请将其注释
-    socks5_config = socks5_utils.Socks5_config(config_file_path)
-    # 执行 Socks5 配置对象的初始化方法
-    # socks5_config.init()
-    # 打印代理信息
-    socks5_config.print_info_proxy()
+    # socks5_config = socks5_utils.Socks5_config(config_file_path)
+    # # 执行 Socks5 配置对象的初始化方法
+    # # socks5_config.init()
+    # # 打印代理信息
+    # socks5_config.print_info_proxy()
 
 
 
@@ -66,6 +68,7 @@ def use_openai(openai_completion_config:dict=None,
         return -1
     # 获取 key
     openai_key = openai_completion_config["api_key"]
+    
     initial_prompt = openai_completion_config['initial_prompt']
     temperature=float(openai_completion_config['temperature'])
     max_tokens=int(openai_completion_config['max_tokens'])
@@ -74,6 +77,8 @@ def use_openai(openai_completion_config:dict=None,
     presence_penalty=float(openai_completion_config['presence_penalty'])
 
     openai.api_key = openai_key
+    # 借用国内代理进行跳转
+    openai.api_base = os.environ.get("OPENAI_API_BASE", "https://api.openai-proxy.com/v1")
     response = openai.Completion.create(
         model=openai_completion_config['model'],
         prompt=initial_prompt+prompts,
@@ -119,7 +124,7 @@ def processing_demands(
 
 
 # 使用 get 请求
-# 文本提取
+# 
 @app.get('/get/r/{require_name}/{law_text}')
 def text_extract(
     config:ai_config.Config = Depends(get_config),
@@ -140,7 +145,7 @@ class Law_item_require(BaseModel):
     law_text: str
 
 
-# 文本提取
+# 
 @app.post('/post/r/')
 def text_extract(
     config:ai_config.Config = Depends(get_config),
@@ -156,6 +161,17 @@ def text_extract(
     # 启动 openai
     res = processing_demands(openai_completion_config,require_config,require_name,law_text)
     return res
+
+# 捕获参数校验异常
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request, exc):
+    return JSONResponse(
+        status_code=400,
+        content={
+            "message": "请求参数错误",
+            "details": exc.errors(),
+        },
+    )
 
 # 启动成功提示
 @app.get('/state')
