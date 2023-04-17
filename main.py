@@ -1,19 +1,27 @@
 from fastapi import FastAPI, Depends
 from uvicorn import Config, Server
-import ai_config
+import utils.ai_config as ai_config
 import openai
 # import socks5_utils
-import logging
+import utils.law_ai_logger as law_ai_logger
 from pydantic import BaseModel
 import datetime
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 import os
+import logging
 # import sys
-# 设置日志级别为 DEBUG（调试模式）
-logging.basicConfig(level=logging.DEBUG)
+# 已经使用logging配置，这里弃用
+# # 设置日志级别为 DEBUG（调试模式）
+# logging.basicConfig(level=logging.DEBUG)
 
 config_file_path = "config.ini"
+log_config_file_path = "logging.ini"
+log_name = "ai_app"
+ai_log = law_ai_logger.ai_log(log_config_file_path,log_name)
+
+openai_logger = logging.getLogger('openai')
+openai_logger.addHandler(logging.handlers.TimedRotatingFileHandler('./log/chatgpt_law_ai_log.log'))
 
 # 创建一个 FastAPI 对象
 app = FastAPI()
@@ -26,7 +34,7 @@ app = FastAPI()
 async def before_server_start():
     # 可以在此处执行一些初始化操作
     print("服务器正在启动中……")
-
+    
     # 下面的函数将开启 socks5 代理 如不需要请将其注释
     # socks5_config = socks5_utils.Socks5_config(config_file_path)
     # # 执行 Socks5 配置对象的初始化方法
