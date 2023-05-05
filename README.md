@@ -55,6 +55,11 @@ http://127.0.0.1:8080/post/r/
 ```
 其中，require_name 字段和 get 请求中的 参数require_name 一样，用来确定任务类型，law_text 字段则是 法律文本
 
+**使用 gpt-3.5-turbo 模型**
+```
+接口地址
+http://127.0.0.1:8080/post/r/turbo/
+```
 
 # 注意事项
 
