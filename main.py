@@ -44,7 +44,7 @@ async def before_server_start():
     # # 打印代理信息
     # socks5_config.print_info_proxy()
     print("服务器启动完成")
-    print（"可以通过：localhost:端口/state 查看接口状态"）
+    print("可以通过：localhost:端口//state 查看接口状态")
 
 
 
